@@ -3085,3 +3085,104 @@ header .nav-desktop a[href="/contact/"]:hover {
   }
 }
 
+
+/* =========================================================
+   FINAL MOBILE HEADER
+   Name on left + hamburger on right
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  header {
+    background: var(--paper) !important;
+    color: var(--ink) !important;
+  }
+
+  .nav-inner {
+    height: 68px !important;
+    min-height: 68px !important;
+    padding: 0 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Show ONLY the name */
+  .logo {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 1 !important;
+  }
+
+  .logo-name {
+    display: block !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .logo-role,
+  .logo-photo {
+    display: none !important;
+  }
+
+  /* Hide desktop navigation */
+  .nav-desktop {
+    display: none !important;
+  }
+
+  /* Show hamburger */
+  .nav-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    flex-shrink: 0 !important;
+  }
+
+  .nav-toggle .bar {
+    display: block !important;
+    width: 23px !important;
+    height: 1.5px !important;
+    background: var(--ink) !important;
+    margin: 0 !important;
+  }
+}
+
+
+/* =========================================================
+   FORCE LIGHT MODE
+   ========================================================= */
+
+:root {
+  color-scheme: light !important;
+}
+
+html {
+  color-scheme: light !important;
+  background: #f6f4ee !important;
+}
+
+body {
+  background: #f6f4ee !important;
+  color: #171717 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    color-scheme: light !important;
+    background: #f6f4ee !important;
+    color: #171717 !important;
+  }
+}
+
