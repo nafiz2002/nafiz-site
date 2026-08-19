@@ -1,22 +1,23 @@
 import type { Metadata } from 'next';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
-import { site } from '@/lib/site';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
+  title: 'Nafiz Basher Alif - Political Science Researcher',
+  description: 'Nafiz Basher Alif - Political Science Researcher',
+  icons: {
+    icon: '/images/nafiz2website.png',
+    shortcut: '/images/nafiz2website.png',
+    apple: '/images/nafiz2website.png',
   },
-  description: site.description,
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
       <body>

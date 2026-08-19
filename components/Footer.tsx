@@ -77,7 +77,7 @@ export default function Footer() {
           </div>
 
           <div className="f-col">
-            <h4>RESEARCH</h4>
+            <h4>ACADEMIC</h4>
             <Link href="/research">Research</Link>
             <Link href="/publications">Publications</Link>
             <Link href="/publications/when-the-state-falters">Thesis</Link>
@@ -113,6 +113,10 @@ export default function Footer() {
 
         <div className="f-bottom">
           <span>© {year} {site.name}</span>
+          <span className="footer-legal">
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/research-notice">Research Notice</Link>
+          </span>
           <span>{site.question}</span>
         </div>
       </div>

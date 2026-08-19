@@ -2802,3 +2802,116 @@ header .nav-desktop a[href="/contact/"]:hover {
   border-color: #222 !important;
   color: #fff !important;
 }
+
+.footer-legal {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: 24px;
+}
+
+.footer-legal a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-legal a:hover {
+  opacity: 0.55;
+}
+
+.legal-page {
+  min-height: 70vh;
+  padding: 100px 24px 120px;
+}
+
+.legal-inner {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.legal-kicker {
+  margin: 0 0 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #777;
+}
+
+.legal-inner h1 {
+  margin: 0 0 28px;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 0.98;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.legal-lead {
+  margin: 0 0 64px;
+  max-width: 680px;
+  font-size: 21px;
+  line-height: 1.55;
+  color: #555;
+}
+
+.legal-inner section {
+  padding: 28px 0;
+  border-top: 1px solid #ddd;
+}
+
+.legal-inner h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.legal-inner section p {
+  margin: 0;
+  max-width: 680px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #666;
+}
+
+.legal-updated {
+  margin-top: 42px !important;
+  font-size: 13px !important;
+  color: #999 !important;
+}
+
+
+/* Fix research hover shape */
+.research-step:hover,
+.research-item:hover,
+.process-item:hover,
+.method-item:hover,
+.research-step.active,
+.research-item.active,
+.process-item.active,
+.method-item.active {
+  border-radius: 14px !important;
+}
+
+.research-step:hover *,
+.research-item:hover *,
+.process-item:hover *,
+.method-item:hover * {
+  border-radius: inherit;
+}
+
+/* Research chain: rectangular hover state */
+.chain-node {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.chain-node:hover,
+.chain-node.on {
+  border-radius: 12px !important;
+  background: var(--paper-2);
+}
+
+.chain-node:hover::before,
+.chain-node.on::before {
+  border-radius: 12px !important;
+}
