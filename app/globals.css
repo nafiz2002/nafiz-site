@@ -2999,3 +2999,39 @@ header .nav-desktop a[href="/contact/"]:hover {
   }
 }
 
+
+/* Mobile header: name + menu only */
+@media (max-width: 768px) {
+  .nav-inner {
+    height: 72px !important;
+    min-height: 72px !important;
+    padding: 0 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .nav-brand {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  .nav-links,
+  .nav-actions,
+  .nav-cta {
+    display: none !important;
+  }
+
+  .nav-toggle {
+    display: flex !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+  }
+}
+
