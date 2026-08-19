@@ -3186,6 +3186,33 @@ body {
    ========================================================= */
 
 html {
+  
+  background: #f6f4ee !important;
+}
+
+body {
+  
+  background: #f6f4ee !important;
+  color: #171717 !important;
+}
+
+* {
+  
+}
+
+input,
+textarea,
+select,
+button {
+  
+}
+
+
+/* =========================================================
+   FORCE LIGHT MODE — FINAL OVERRIDE
+   ========================================================= */
+
+html {
   color-scheme: light !important;
   background: #f6f4ee !important;
 }
