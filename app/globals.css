@@ -3164,11 +3164,11 @@ header .nav-desktop a[href="/contact/"]:hover {
    ========================================================= */
 
 :root {
-  color-scheme: light !important;
+  
 }
 
 html {
-  color-scheme: light !important;
+  
   background: #f6f4ee !important;
 }
 
@@ -3177,12 +3177,32 @@ body {
   color: #171717 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  html,
-  body {
-    color-scheme: light !important;
-    background: #f6f4ee !important;
-    color: #171717 !important;
-  }
+
+
+
+
+/* =========================================================
+   FORCE LIGHT MODE — FINAL OVERRIDE
+   ========================================================= */
+
+html {
+  color-scheme: light !important;
+  background: #f6f4ee !important;
 }
 
+body {
+  color-scheme: light !important;
+  background: #f6f4ee !important;
+  color: #171717 !important;
+}
+
+* {
+  color-scheme: light !important;
+}
+
+input,
+textarea,
+select,
+button {
+  color-scheme: light !important;
+}
