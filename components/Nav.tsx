@@ -10,7 +10,7 @@ const LINKS = [
   { href: '/research', label: 'Research' },
   { href: '/publications', label: 'Publications' },
   { href: '/writing', label: 'Writing' },
-  { href: '/idrg', label: 'IDRG' },
+  { href: '/commentary', label: 'Commentary' },
 ];
 
 export default function Nav() {

@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { site } from '@/lib/site';
 
+type Status = 'idle' | 'sending' | 'sent' | 'failed';
+
 export default function ContactForm() {
   const [v, setV] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState<Status>('idle');
+  const [failMsg, setFailMsg] = useState('');
 
   const up = (f: string, val: string) => {
     setV((s) => ({ ...s, [f]: val }));
@@ -17,7 +20,12 @@ export default function ContactForm() {
     });
   };
 
-  function submit() {
+  const mailto = `mailto:${site.email}?subject=${encodeURIComponent(
+    v.subject || 'Website enquiry'
+  )}&body=${encodeURIComponent(`${v.message}\n\n— ${v.name}\n${v.email}`)}`;
+
+  async function submit(ev: React.FormEvent) {
+    ev.preventDefault();
     const e: Record<string, string> = {};
     if (!v.name.trim()) e.name = 'Enter your name';
     if (!v.email.trim()) e.email = 'Enter your email';
@@ -28,45 +36,83 @@ export default function ContactForm() {
       setErrors(e);
       return;
     }
-    setDone(true);
+
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(v),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFailMsg(data.error || 'The message could not be sent.');
+        setStatus('failed');
+        return;
+      }
+      setStatus('sent');
+    } catch {
+      setFailMsg('The message could not be sent. Check your connection and try again.');
+      setStatus('failed');
+    }
   }
 
-  if (done) {
+  if (status === 'sent') {
     return (
-      <div className="form-status">
-        <p style={{ fontWeight: 500, marginBottom: 10 }}>
-          Your message is ready to send.
-        </p>
+      <div className="form-status" role="status">
+        <p style={{ fontWeight: 500, marginBottom: 10 }}>Message sent.</p>
         <p style={{ fontSize: 14.5, color: 'var(--ink-2)', lineHeight: 1.75 }}>
-          Sending is not connected yet, so nothing has been transmitted. Use the
-          button below to send it directly.
+          Thank you, {v.name.trim()}. Your message has been delivered and a
+          reply will go to {v.email.trim()}.
         </p>
         <div className="btn-row" style={{ marginTop: 22 }}>
-          <a
-            className="btn btn-primary"
-            href={`mailto:${site.email}?subject=${encodeURIComponent(
-              v.subject || 'Website enquiry'
-            )}&body=${encodeURIComponent(`${v.message}\n\n— ${v.name}\n${v.email}`)}`}
+          <button
+            className="btn"
+            onClick={() => {
+              setV({ name: '', email: '', subject: '', message: '' });
+              setStatus('idle');
+            }}
           >
-            Open in email <span className="arw">→</span>
-          </a>
-          <button className="btn" onClick={() => setDone(false)}>
-            Edit message
+            Send another
           </button>
         </div>
       </div>
     );
   }
 
+  if (status === 'failed') {
+    return (
+      <div className="form-status" role="alert">
+        <p style={{ fontWeight: 500, marginBottom: 10 }}>Not sent.</p>
+        <p style={{ fontSize: 14.5, color: 'var(--ink-2)', lineHeight: 1.75 }}>
+          {failMsg} You can also send it from your own email client.
+        </p>
+        <div className="btn-row" style={{ marginTop: 22 }}>
+          <button className="btn btn-primary" onClick={() => setStatus('idle')}>
+            Try again
+          </button>
+          <a className="btn" href={mailto}>
+            Open in email <span className="arw">→</span>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  const sending = status === 'sending';
+
   return (
-    <div className="form">
+    <form className="form" onSubmit={submit} noValidate>
       <div className="field">
         <label htmlFor="c-name">Name</label>
         <input
           id="c-name"
+          name="name"
+          autoComplete="name"
           value={v.name}
           onChange={(e) => up('name', e.target.value)}
           placeholder="Your name"
+          disabled={sending}
         />
         {errors.name && (
           <div className="field-error" role="alert">
@@ -79,10 +125,13 @@ export default function ContactForm() {
         <label htmlFor="c-email">Email</label>
         <input
           id="c-email"
+          name="email"
           type="email"
+          autoComplete="email"
           value={v.email}
           onChange={(e) => up('email', e.target.value)}
           placeholder="name@example.com"
+          disabled={sending}
         />
         {errors.email && (
           <div className="field-error" role="alert">
@@ -97,9 +146,11 @@ export default function ContactForm() {
         </label>
         <input
           id="c-subject"
+          name="subject"
           value={v.subject}
           onChange={(e) => up('subject', e.target.value)}
           placeholder="What this is about"
+          disabled={sending}
         />
       </div>
 
@@ -107,9 +158,11 @@ export default function ContactForm() {
         <label htmlFor="c-message">Message</label>
         <textarea
           id="c-message"
+          name="message"
           value={v.message}
           onChange={(e) => up('message', e.target.value)}
           placeholder="Your message"
+          disabled={sending}
         />
         {errors.message && (
           <div className="field-error" role="alert">
@@ -118,9 +171,15 @@ export default function ContactForm() {
         )}
       </div>
 
-      <button className="btn btn-primary" onClick={submit}>
-        Send message <span className="arw">→</span>
+      <button className="btn btn-primary" type="submit" disabled={sending}>
+        {sending ? 'Sending…' : 'Send message'}
+        {!sending && (
+          <>
+            {' '}
+            <span className="arw">→</span>
+          </>
+        )}
       </button>
-    </div>
+    </form>
   );
 }

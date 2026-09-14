@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Reveal from '@/components/Reveal';
 import SectionHead from '@/components/SectionHead';
 import Stepper from '@/components/Stepper';
@@ -146,17 +145,6 @@ export default function ResearchPage() {
               </Reveal>
             ))}
           </div>
-          <Reveal delay={200}>
-            <div className="btn-row" style={{ marginTop: 44 }}>
-              <Link
-                href="/idrg"
-                className="btn btn-primary btn-lg"
-                style={{ background: 'var(--paper)', color: 'var(--ink)', borderColor: 'var(--paper)' }}
-              >
-                These questions drive IDRG <span className="arw">→</span>
-              </Link>
-            </div>
-          </Reveal>
         </div>
       </section>
     </>

@@ -14,7 +14,6 @@ import {
   notebook,
   openQuestions,
   concepts,
-  idrg,
   positions,
 } from '@/lib/site';
 
@@ -210,37 +209,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------------- IDRG ---------------- */}
-      <section className="apply-cta">
-        <div className="wrap">
-          <Reveal>
-            <p
-              className="eyebrow-plain"
-              style={{ marginBottom: 22, color: 'rgba(246,244,238,0.55)' }}
-            >
-              {idrg.short}
-            </p>
-            <h2 className="q-large">{idrg.name}</h2>
-            <p>{idrg.line}</p>
-            <div className="btn-row" style={{ justifyContent: 'center' }}>
-              <Link href="/idrg" className="btn btn-primary btn-lg">
-                Explore IDRG <span className="arw">→</span>
-              </Link>
-              <Link
-                href="/idrg/apply"
-                className="btn btn-primary btn-lg"
-                style={{
-                  background: 'var(--paper)',
-                  color: 'var(--ink)',
-                  borderColor: 'var(--paper)',
-                }}
-              >
-                Apply to join
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
     </>
   );
 }

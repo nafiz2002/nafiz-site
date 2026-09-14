@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
-import JoinForm from '@/components/JoinForm';
+import JoinForm from '../JoinForm';
 import { site, idrg } from '@/lib/site';
 
 export const metadata: Metadata = {

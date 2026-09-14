@@ -22,10 +22,12 @@ export const site = {
     'Global South',
   ],
 
-  email: 'nafiz-2021514942@dpa.du.ac.bd',
+  email: 'contact@nafizbasher.com',
   substackUrl: 'https://nafizbasher.substack.com/',
   orcidUrl: '',
-  linkedinUrl: '',
+  linkedinUrl: 'https://www.linkedin.com/in/nafizbasher/',
+  xUrl: 'https://x.com/nafiz_basher',
+  googleScholarUrl: 'https://scholar.google.com/citations?user=mKv2JBAAAAAJ&hl=en',
   cvPath: '/cv.pdf',
 };
 

@@ -14,7 +14,8 @@ Next.js 14 (App Router), TypeScript. Monochrome academic design.
 
     /               Home
     /research       Research agenda, research plan, methods
-    /idrg           Institutional Dysfunction Research Group + join form
+    /commentary     Commentary (Substack-style posts)
+    /commentary/write   Form for publishing to Commentary (passphrase protected)
     /publications   Publications and working papers
     /writing        Academic and public writing
     /contact        Contact details and form
@@ -31,10 +32,7 @@ These are intentionally empty strings in lib/site.ts because the URLs were
 not available. Any link with an empty URL is hidden, so nothing renders
 broken. Fill them in and they appear automatically:
 
-    orcidUrl
-    linkedinUrl
-    substackUrl        <- the Writing page links to this once set
-    googleScholarUrl
+    orcidUrl           <- the footer shows an ORCID icon once set
 
 ### Replacing the CV
 
@@ -42,12 +40,35 @@ Overwrite public/cv.pdf.
 
 ## Forms
 
-The IDRG join form and the contact form are fully built and validated in
-the UI, but no backend is connected. On submit they show a confirmation
-state and direct the user to email instead - they do not silently pretend
-to send. To wire them up, add a route handler (e.g.
-app/api/contact/route.ts) and POST to it from components/ContactForm.tsx
-and components/JoinForm.tsx.
+### Contact form
+
+components/ContactForm.tsx POSTs to app/api/contact/route.ts, which sends
+the message by email through Resend (https://resend.com). Set RESEND_API_KEY
+(see .env.example). Until it is set the form shows a "not sent" state with
+a mailto fallback rather than pretending to send.
+
+### Commentary
+
+Posts are written at /commentary/write and appear on /commentary
+immediately. Storage is chosen automatically in lib/commentary.ts:
+
+  - Upstash Redis when KV_REST_API_URL / KV_REST_API_TOKEN are set (on
+    Vercel: Storage > Upstash for Redis, which injects them). Publish from
+    the live site.
+  - data/commentary.json otherwise. Works in `npm run dev`; commit the
+    file and deploy to publish. Writes fail on a read-only host.
+
+Publishing requires the passphrase in COMMENTARY_ADMIN_KEY. In development
+with no key set, publishing is open.
+
+Post text is plain text with a blank line between paragraphs. A small
+Markdown subset is understood: ## Heading, > quote, - list, 1. list, ---,
+**bold**, *italic*, [text](url). See components/PostBody.tsx.
+
+## Unpublished pages
+
+app/_unpublished/ holds pages that are switched off but kept for later
+(currently IDRG). See app/_unpublished/README.md to restore one.
 
 ## Animation
 

@@ -5,7 +5,7 @@ import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Get in touch about research, collaboration, or IDRG.',
+  description: 'Get in touch about research, collaboration, or commentary.',
 };
 
 export default function ContactPage() {
@@ -36,8 +36,8 @@ export default function ContactPage() {
             Get in touch.
           </h1>
           <p className="lede" style={{ marginTop: 24, marginBottom: 56 }}>
-            I am glad to hear from researchers working on related questions, and
-            from anyone interested in IDRG.
+            I am glad to hear from researchers working on related questions,
+            and from anyone who wants to discuss the work.
           </p>
         </Reveal>
 
