@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import WriteForm from './WriteForm';
-import { listPosts, storageMode } from '@/lib/commentary';
+import { listPosts } from '@/lib/commentary';
 
 export const metadata: Metadata = {
   title: 'Write · Commentary',
@@ -29,7 +29,6 @@ export default async function WritePage() {
 
         <WriteForm
           initialPosts={posts}
-          storage={storageMode()}
           keyRequired={keyRequired}
         />
       </div>

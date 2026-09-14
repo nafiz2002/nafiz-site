@@ -26,11 +26,9 @@ function fmt(iso: string) {
 
 export default function WriteForm({
   initialPosts,
-  storage,
   keyRequired,
 }: {
   initialPosts: Post[];
-  storage: 'redis' | 'file';
   keyRequired: boolean;
 }) {
   const router = useRouter();
@@ -244,12 +242,6 @@ export default function WriteForm({
             View Commentary
           </Link>
         </div>
-
-        <p className="form-note">
-          {storage === 'redis'
-            ? 'Posts are stored in the site database and go live immediately.'
-            : 'No database connected: posts are saved to data/commentary.json. Locally that works right away; commit and deploy the file to publish it on the live site, or add Upstash Redis (see .env.example) to publish from anywhere.'}
-        </p>
       </form>
 
       <aside className="write-list">
