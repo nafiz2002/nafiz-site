@@ -52,9 +52,10 @@ a mailto fallback rather than pretending to send.
 Posts are written at /commentary/write and appear on /commentary
 immediately. Storage is chosen automatically in lib/commentary.ts:
 
-  - Upstash Redis when KV_REST_API_URL / KV_REST_API_TOKEN are set (on
-    Vercel: Storage > Upstash for Redis, which injects them). Publish from
-    the live site.
+  - Redis when a REDIS_URL / *_REDIS_URL (Vercel > Storage > Redis) or
+    KV_REST_API_URL + KV_REST_API_TOKEN (Upstash) env var is set. Vercel
+    injects these when the database is connected to the project. Publish
+    from the live site.
   - data/commentary.json otherwise. Works in `npm run dev`; commit the
     file and deploy to publish. Writes fail on a read-only host.
 

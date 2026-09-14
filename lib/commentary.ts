@@ -1,20 +1,26 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Redis } from '@upstash/redis';
+import { createClient, type RedisClientType } from 'redis';
+import { Redis as Upstash } from '@upstash/redis';
 
 // ---------------------------------------------------------------------------
 // Commentary storage.
 //
-// Two backends, chosen automatically:
+// Three backends, chosen automatically:
 //
-//   1. Upstash Redis — when KV_REST_API_URL + KV_REST_API_TOKEN (the names the
-//      Vercel marketplace integration injects) or UPSTASH_REDIS_REST_URL +
-//      UPSTASH_REDIS_REST_TOKEN are set. Posts written from the live site
-//      appear immediately.
+//   1. Redis over a connection string — any env var named REDIS_URL or ending
+//      in _REDIS_URL (Vercel's Redis integration adds one with the database's
+//      prefix, e.g. nafiz_commentary_REDIS_URL). Uses the `redis` package.
 //
-//   2. data/commentary.json — otherwise. Writes work in `npm run dev`; commit
+//   2. Upstash Redis over REST — KV_REST_API_URL + KV_REST_API_TOKEN or
+//      UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN.
+//
+//   3. data/commentary.json — otherwise. Writes work in `npm run dev`; commit
 //      the file and deploy to publish. On a read-only host (Vercel) writes
 //      fail with a clear error, reads still work.
+//
+// With either Redis backend, posts written from the live site appear
+// immediately.
 // ---------------------------------------------------------------------------
 
 export type Post = {
@@ -30,16 +36,93 @@ const INDEX = 'commentary:index';
 const KEY = (slug: string) => `commentary:post:${slug}`;
 const FILE = path.join(process.cwd(), 'data', 'commentary.json');
 
-function redis(): Redis | null {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+// Minimal store interface shared by the two Redis backends.
+type Store = {
+  get(key: string): Promise<Post | null>;
+  mget(keys: string[]): Promise<(Post | null)[]>;
+  set(key: string, post: Post): Promise<void>;
+  del(key: string): Promise<void>;
+  zadd(key: string, score: number, member: string): Promise<void>;
+  zrem(key: string, member: string): Promise<void>;
+  zrevrange(key: string): Promise<string[]>;
+};
+
+function redisUrl(): string | undefined {
+  if (process.env.REDIS_URL) return process.env.REDIS_URL;
+  const k = Object.keys(process.env).find((k) => k.endsWith('_REDIS_URL'));
+  return k ? process.env[k] : undefined;
+}
+
+// node-redis keeps a TCP connection; reuse it across invocations.
+const g = globalThis as unknown as { __commentaryRedis?: Promise<RedisClientType> };
+
+function nodeRedis(url: string): Store {
+  const client = () => {
+    if (!g.__commentaryRedis) {
+      const c = createClient({ url }) as RedisClientType;
+      c.on('error', (err) => console.error('redis error', err));
+      g.__commentaryRedis = c.connect().then(() => c);
+      g.__commentaryRedis.catch(() => {
+        g.__commentaryRedis = undefined;
+      });
+    }
+    return g.__commentaryRedis;
+  };
+  const parse = (v: string | null) => (v ? (JSON.parse(v) as Post) : null);
+  return {
+    get: async (k) => parse(await (await client()).get(k)),
+    mget: async (ks) => (await (await client()).mGet(ks)).map(parse),
+    set: async (k, p) => {
+      await (await client()).set(k, JSON.stringify(p));
+    },
+    del: async (k) => {
+      await (await client()).del(k);
+    },
+    zadd: async (k, score, value) => {
+      await (await client()).zAdd(k, { score, value });
+    },
+    zrem: async (k, m) => {
+      await (await client()).zRem(k, m);
+    },
+    zrevrange: async (k) => (await client()).zRange(k, 0, -1, { REV: true }),
+  };
+}
+
+function upstash(url: string, token: string): Store {
+  const r = new Upstash({ url, token });
+  return {
+    get: (k) => r.get<Post>(k).then((v) => v ?? null),
+    mget: (ks) => r.mget<(Post | null)[]>(...ks),
+    set: async (k, p) => {
+      await r.set(k, p);
+    },
+    del: async (k) => {
+      await r.del(k);
+    },
+    zadd: async (k, score, member) => {
+      await r.zadd(k, { score, member });
+    },
+    zrem: async (k, m) => {
+      await r.zrem(k, m);
+    },
+    zrevrange: (k) => r.zrange<string[]>(k, 0, -1, { rev: true }),
+  };
+}
+
+function store(): Store | null {
+  const url = redisUrl();
+  if (url) return nodeRedis(url);
+
+  const restUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token =
     process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
-  return new Redis({ url, token });
+  if (restUrl && token) return upstash(restUrl, token);
+
+  return null;
 }
 
 export function storageMode(): 'redis' | 'file' {
-  return redis() ? 'redis' : 'file';
+  return store() ? 'redis' : 'file';
 }
 
 // ---- file backend ---------------------------------------------------------
@@ -66,23 +149,23 @@ function byDateDesc(a: Post, b: Post) {
 }
 
 export async function listPosts(): Promise<Post[]> {
-  const r = redis();
+  const r = store();
   if (!r) return (await readFile()).sort(byDateDesc);
 
-  const slugs = await r.zrange<string[]>(INDEX, 0, -1, { rev: true });
+  const slugs = await r.zrevrange(INDEX);
   if (!slugs.length) return [];
-  const rows = await r.mget<(Post | null)[]>(...slugs.map(KEY));
+  const rows = await r.mget(slugs.map(KEY));
   return rows.filter((p): p is Post => !!p);
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
-  const r = redis();
+  const r = store();
   if (!r) return (await readFile()).find((p) => p.slug === slug) ?? null;
-  return (await r.get<Post>(KEY(slug))) ?? null;
+  return r.get(KEY(slug));
 }
 
 export async function savePost(post: Post): Promise<void> {
-  const r = redis();
+  const r = store();
   if (!r) {
     const posts = await readFile();
     const i = posts.findIndex((p) => p.slug === post.slug);
@@ -92,14 +175,11 @@ export async function savePost(post: Post): Promise<void> {
     return;
   }
   await r.set(KEY(post.slug), post);
-  await r.zadd(INDEX, {
-    score: new Date(post.publishedAt).getTime(),
-    member: post.slug,
-  });
+  await r.zadd(INDEX, new Date(post.publishedAt).getTime(), post.slug);
 }
 
 export async function deletePost(slug: string): Promise<void> {
-  const r = redis();
+  const r = store();
   if (!r) {
     const posts = await readFile();
     await writeFile(posts.filter((p) => p.slug !== slug));
